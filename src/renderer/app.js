@@ -13,7 +13,8 @@ const state = {
   focusedIds: { list: null, cart: null },
   view: 'show',
   lastMessageAt: 0,
-  showLocked: localStorage.getItem('qdeck-show-locked') === '1'
+  showLocked: localStorage.getItem('qdeck-show-locked') === '1',
+  darkMode: localStorage.getItem('qdeck-dark-mode') === '1'
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -91,11 +92,29 @@ function isRunning(id) {
 function render() {
   renderConnection();
   renderLock();
+  renderTheme();
   renderCueList();
   renderStandby();
   renderRunning();
   renderWorkspacePicker();
   renderMixer();
+}
+
+function renderTheme() {
+  document.body.classList.toggle('dark-theme', state.darkMode);
+  const button = $('#theme-button');
+  button.classList.toggle('active', state.darkMode);
+  button.textContent = state.darkMode ? '☀' : '●';
+  button.title = state.darkMode ? 'Activar modo claro' : 'Activar modo oscuro';
+  button.setAttribute('aria-label', button.title);
+}
+
+function toggleTheme() {
+  state.darkMode = !state.darkMode;
+  localStorage.setItem('qdeck-dark-mode', state.darkMode ? '1' : '0');
+  renderTheme();
+  toast(state.darkMode ? 'Modo oscuro activado' : 'Modo claro activado');
+  vibrate(24);
 }
 
 function renderMixer() {
@@ -362,7 +381,7 @@ function pollGamepad(now) {
     if (down(0)) { modifier ? act('resumeAll') : act('go'); gamepadState.viewCombo ||= modifier; }
     if (down(1)) { modifier ? act('stopAll') : act('stopCue'); gamepadState.viewCombo ||= modifier; }
     if (down(2)) { modifier ? act('pauseAll') : act('togglePauseCue'); gamepadState.viewCombo ||= modifier; }
-    if (down(3)) { act('previewCue'); gamepadState.viewCombo ||= modifier; }
+    if (down(3)) { modifier ? toggleTheme() : act('previewCue'); gamepadState.viewCombo ||= modifier; }
     if (down(4)) { modifier ? act('previousSequence') : cycleCollection('list', -1); gamepadState.viewCombo ||= modifier; }
     if (down(5)) { modifier ? act('nextSequence') : cycleCollection('list', 1); gamepadState.viewCombo ||= modifier; }
     if (down(9)) openSettings();
@@ -442,6 +461,7 @@ window.addEventListener('keydown', (event) => {
   else if (event.key === ']') { event.preventDefault(); act('next'); }
   else if (event.key === '\\') { event.preventDefault(); toggleActivePanel(); }
   else if (event.key.toLowerCase() === 'p') { event.preventDefault(); focusPlayhead(); }
+  else if (event.key.toLowerCase() === 't') { event.preventDefault(); toggleTheme(); }
   else if (map[event.key]) { event.preventDefault(); act(map[event.key]); }
 });
 
@@ -458,6 +478,7 @@ function bindUi() {
   $$('[data-action]').filter((button) => button.dataset.action !== 'resetAll').forEach((button) => button.addEventListener('click', () => act(button.dataset.action)));
   $('#brand').addEventListener('click', () => switchView('show'));
   $('#settings-button').addEventListener('click', openSettings);
+  $('#theme-button').addEventListener('click', toggleTheme);
   $('#connection-button').addEventListener('click', openSettings);
   $('#lock-button').addEventListener('click', () => {
     state.showLocked = !state.showLocked;

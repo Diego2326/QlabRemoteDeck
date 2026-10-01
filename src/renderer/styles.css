@@ -587,3 +587,56 @@ input, select { color: #202320; border-color: #9a9d97; background: #f3f3ee; }
 .primary { color: #fff; border-color: #1758c7; background: #2677ff; box-shadow: inset 0 -4px #164aae; }
 .ghost { color: #303430; border-color: #9a9d97; }
 .toast { color: #f0f1ec; border-color: #737872; background: #252925f2; }
+
+/* Manual dark finish for SteamOS, which does not expose a dependable system
+   theme to game-mode applications. The blue operational accent is unchanged. */
+body.dark-theme {
+  --bg: #0e100f;
+  --panel: #1a1d1b;
+  --panel-2: #222522;
+  --line: #4b504c;
+  --muted: #929994;
+  --text: #eff1ed;
+  color: var(--text);
+  background-color: #0e100f;
+  background-image: radial-gradient(circle at 1px 1px, #aab0aa1d 1px, transparent 1.15px);
+}
+.dark-theme #app { background: linear-gradient(110deg, #ffffff05, transparent 25% 75%, #2677ff08), #111311; }
+.dark-theme .single-view { color: #eff1ed; }
+.dark-theme .topbar { color: #eff1ed; border-bottom-color: #4b504c; background: linear-gradient(#252825, #111311); box-shadow: inset 0 1px #555a55, inset 0 -2px #070807, 0 4px 12px #0009; }
+.dark-theme .brand strong { color: #f1f2ee; }
+.dark-theme .tab { color: #909792; }
+.dark-theme .tab.active { color: #171a18; border-color: #fff; background: linear-gradient(#f5f5f0, #c9cbc5); box-shadow: inset 0 2px #fff, inset 0 -4px #999d97, 0 2px 3px #000; }
+.theme-button.active { color: #fff; border-color: #326fcf; background: linear-gradient(#4a8df3, #225fc3); }
+.dark-theme .connection, .dark-theme .icon-button, .dark-theme .panel-nav button, .dark-theme .small-button { color: #e9ebe7; border-color: #505651; background: linear-gradient(#303431, #181b19); box-shadow: inset 0 1px #626863, inset 0 -3px #080908, 0 2px 4px #0008; }
+.dark-theme .connection.connected { color: #e9ebe7; border-color: #505651; background: linear-gradient(#303431, #181b19); }
+.dark-theme .lock-button.locked { color: #fff; border-color: #326fcf; background: #225fc3; }
+.dark-theme .panel { color: #edf0ec; border-color: #4d534e; background: linear-gradient(135deg, #ffffff08, transparent 25%), linear-gradient(#222522, #141614); box-shadow: inset 0 0 0 2px #090a09, inset 0 1px #62676255, 0 5px 12px #0009; }
+.dark-theme .panel-heading { border-bottom-color: #454b46; background-image: repeating-linear-gradient(90deg, transparent 0 24px, #ffffff08 24px 25px); }
+.dark-theme .list-picker { color: #f1f2ee; }
+.dark-theme .cue-list, .dark-theme .running-mini-list { background-color: #161917; background-image: linear-gradient(#ffffff05 1px, transparent 1px); }
+.dark-theme .cue-row { color: #e9ebe7; }
+.dark-theme .cue-row:hover, .dark-theme .cue-row.focused { background: #292d2a; border-color: #555c57; }
+.dark-theme .cue-row.playhead { color: #fff; background: linear-gradient(90deg, #4a91ff, #2677ff); border-color: #6da6ff; }
+.dark-theme .cue-num, .dark-theme .cue-sub { color: #858e88; }
+.dark-theme .cue-row.playhead .cue-num, .dark-theme .cue-row.playhead .cue-sub { color: #e4efff; }
+.dark-theme .running-mini .panel-heading { background-color: #202320; }
+.dark-theme .empty-state { color: #858c87; }
+.dark-theme .transport, .dark-theme .quick-actions button, .dark-theme .control-card, .dark-theme .level-buttons button { color: #eff1ed; border-color: #555b56; background: linear-gradient(#323632, #1c1f1d); box-shadow: inset 0 2px #676d68, inset 0 -5px #090a09, 0 3px 5px #000b; }
+.dark-theme .transport.go { color: #fff; border-color: #6da6ff; background: linear-gradient(#5598ff, #2677ff); box-shadow: inset 0 3px #9fc7ff, inset 0 -7px #164aae, 0 4px 10px #000b; }
+.dark-theme .mixer-card { border-color: #515752; }
+.dark-theme .active-mixer { background: linear-gradient(145deg, #242824, #151715); }
+.dark-theme .level-buttons button { color: #f0f1ed; border-color: #555b56; background: linear-gradient(#353936, #1d201e); box-shadow: inset 0 2px #686e69, inset 0 -5px #090a09, 0 3px 5px #000a; }
+.dark-theme .level-buttons button:nth-last-child(-n+2) { border-color: #397de9; background: linear-gradient(#4f91f8, #2469d7); box-shadow: inset 0 2px #8db9ff, inset 0 -5px #123f92, 0 3px 5px #000a; }
+.dark-theme .mixer-copy p, .dark-theme .deck-shortcut, .dark-theme .safe-label { color: #939a95; }
+.dark-theme .control-card { border-left-color: #777e78; }
+.dark-theme .danger-card { color: #fff; border-color: #a23b30; border-left-color: #e83e27; background: linear-gradient(#392a27, #1c1716); }
+.dark-theme .mapping { color: #edf0ec; background-color: #171917; }
+.dark-theme .mapping-grid { background-image: radial-gradient(circle at 1px 1px, #d7dcd716 1px, transparent 1px); }
+.dark-theme .mapping-grid span { color: #a8afaa; }
+.dark-theme .footer { color: #929994; border-top-color: #484e49; background: linear-gradient(#202320, #0d0f0e); box-shadow: inset 0 1px #454a46; }
+.dark-theme #clock { color: #e5e8e4; }
+.dark-theme dialog { color: #edf0ec; border-color: #555b56; background: #1b1e1c; }
+.dark-theme input, .dark-theme select { color: #eef0ec; border-color: #555b56; background: #101210; }
+.dark-theme .help-box { color: #b1b8b2; border-color: #485049; background: #202521; }
+.dark-theme .ghost { color: #e4e7e3; border-color: #555b56; }

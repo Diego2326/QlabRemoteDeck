@@ -12,6 +12,7 @@ Consola remota bidireccional para operar QLab 5 desde una Steam Deck. Usa OSC 1.
 - Reconexión automática, passcode de QLab y selección de workspace.
 - Confirmación visual y háptica cuando QLab acepta cada comando.
 - Modo Show bloqueado para proteger configuración y Reset.
+- Tema claro/oscuro manual y persistente, independiente del tema de SteamOS.
 - Controles táctiles, teclado y gamepad; interfaz optimizada para 1280 × 800.
 - Acciones destructivas protegidas mediante pulsación de 1.2 segundos.
 - Modo demostración para conocer y probar la interfaz sin una Mac.
@@ -79,6 +80,7 @@ Selecciona una plantilla **Gamepad con trackpad como mouse**. Los controles est�
 | L3 + R3, mantener 1.2 s | PANIC protegido |
 | View | Vista de control global |
 | View + A/X/B | Reanudar/pausar/detener todo |
+| View + Y | Alternar tema claro/oscuro |
 | View + cruceta arriba/abajo | Subir/bajar 1 dB todos los cues activos |
 | Menu | Configuración |
 | Trackpad derecho/táctil | Puntero y control directo |

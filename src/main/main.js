@@ -81,6 +81,10 @@ function createWindow() {
           await window.webContents.executeJavaScript(`document.querySelector('#cue-list-carts .cue-row')?.click()`);
           await new Promise((resolve) => setTimeout(resolve, 120));
         }
+        if (process.env.QDECK_SCREENSHOT_THEME === 'dark') {
+          await window.webContents.executeJavaScript(`document.body.classList.add('dark-theme')`);
+          await new Promise((resolve) => setTimeout(resolve, 120));
+        }
         const image = await window.webContents.capturePage();
         fs.writeFileSync(process.env.QDECK_SCREENSHOT, image.toPNG());
         app.quit();
