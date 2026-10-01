@@ -28,7 +28,7 @@ test('rechaza badpass de QLab', () => {
     args: [JSON.stringify({ address: '/workspace/TEST/connect', status: 'ok', data: 'badpass' })]
   });
   assert.equal(status.state, 'denied');
-  assert.equal(status.detail, 'Código de acceso incorrecto');
+  assert.equal(status.detail, 'Incorrect passcode');
 });
 
 test('convierte en playhead vacío el error esperado de un Cue Cart', () => {

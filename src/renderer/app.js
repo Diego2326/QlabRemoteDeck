@@ -2,7 +2,7 @@
 
 const state = {
   config: {},
-  status: { state: 'disconnected', detail: 'Desconectado' },
+  status: { state: 'disconnected', detail: 'Disconnected' },
   workspaces: [],
   lists: [],
   currentListId: null,
@@ -58,7 +58,7 @@ function selectCollection(list) {
 function cycleCollection(kind, delta) {
   const available = collections(kind);
   if (!available.length) {
-    toast(kind === 'cart' ? 'Este workspace no tiene Cue Carts' : 'Este workspace no tiene Cue Lists');
+    toast(kind === 'cart' ? 'This workspace has no Cue Carts' : 'This workspace has no Cue Lists');
     return;
   }
   const index = available.findIndex((list) => list.uniqueID === state.selectedCollectionIds[kind]);
@@ -105,7 +105,7 @@ function renderTheme() {
   const button = $('#theme-button');
   button.classList.toggle('active', state.darkMode);
   button.textContent = state.darkMode ? '☀' : '●';
-  button.title = state.darkMode ? 'Activar modo claro' : 'Activar modo oscuro';
+  button.title = state.darkMode ? 'Enable light mode' : 'Enable dark mode';
   button.setAttribute('aria-label', button.title);
 }
 
@@ -113,7 +113,7 @@ function toggleTheme() {
   state.darkMode = !state.darkMode;
   localStorage.setItem('qdeck-dark-mode', state.darkMode ? '1' : '0');
   renderTheme();
-  toast(state.darkMode ? 'Modo oscuro activado' : 'Modo claro activado');
+  toast(state.darkMode ? 'Dark mode enabled' : 'Light mode enabled');
   vibrate(24);
 }
 
@@ -121,8 +121,8 @@ function renderMixer() {
   const cue = focusedCue();
   $('#audio-active-count').textContent = state.running.length;
   $('#mixer-cue-name').textContent = cue
-    ? `${cue.number || '—'} · ${cue.listName || cue.name || 'Sin nombre'}`
-    : 'Sin cue seleccionado';
+    ? `${cue.number || '—'} · ${cue.listName || cue.name || 'Untitled'}`
+    : 'No cue selected';
 }
 
 function renderLock() {
@@ -130,14 +130,14 @@ function renderLock() {
   const button = $('#lock-button');
   button.classList.toggle('locked', state.showLocked);
   button.textContent = state.showLocked ? '🔒' : '🔓';
-  button.title = state.showLocked ? 'Modo Show bloqueado' : 'Bloquear modo Show';
+  button.title = state.showLocked ? 'Show mode locked' : 'Lock show mode';
 }
 
 function renderConnection() {
   const button = $('#connection-button');
   const status = state.status.state;
   button.className = `connection ${status === 'connected' || status === 'demo' ? 'connected' : status === 'error' || status === 'denied' ? 'error' : status === 'disconnected' ? 'offline' : 'connecting'}`;
-  const labels = { connected: state.status.workspace?.displayName || 'Conectado', demo: 'Demostración', disconnected: 'Desconectado', error: 'Error', denied: 'Acceso denegado', connecting: 'Conectando…', reconnecting: 'Reconectando…', discovering: 'Buscando…', authorizing: 'Autorizando…' };
+  const labels = { connected: state.status.workspace?.displayName || 'Connected', demo: 'Demo', disconnected: 'Disconnected', error: 'Error', denied: 'Access denied', connecting: 'Connecting…', reconnecting: 'Reconnecting…', discovering: 'Discovering…', authorizing: 'Authorizing…' };
   button.querySelector('span').textContent = labels[status] || status;
   button.title = state.status.detail || '';
   $('#latency-label').textContent = status === 'demo' ? 'DEMO' : status === 'connected' ? 'QLab online' : 'QLab offline';
@@ -151,12 +151,12 @@ function renderCueList() {
 function renderCuePanel(kind) {
   const list = currentList(kind);
   const picker = $(`#list-picker-${kind}`);
-  picker.textContent = list?.listName || list?.name || (kind === 'cart' ? 'Sin Cue Cart' : 'Sin Cue List');
+  picker.textContent = list?.listName || list?.name || (kind === 'cart' ? 'No Cue Cart' : 'No Cue List');
   $(`#${kind === 'cart' ? 'cart' : 'list'}-panel`).classList.toggle('active-panel', state.activeKind === kind);
   const cues = visibleCues(kind);
   const container = $(`#cue-list-${kind === 'cart' ? 'carts' : 'lists'}`);
   if (!cues.length) {
-    container.innerHTML = `<div class="empty-state">${list ? 'Esta colección no tiene cues.' : kind === 'cart' ? 'No hay Cue Carts.' : 'No hay Cue Lists.'}</div>`;
+    container.innerHTML = `<div class="empty-state">${list ? 'This collection has no cues.' : kind === 'cart' ? 'No Cue Carts found.' : 'No Cue Lists found.'}</div>`;
     return;
   }
   container.innerHTML = cues.map((cue) => {
@@ -164,7 +164,7 @@ function renderCuePanel(kind) {
     const indent = 11 + (cue.depth || 0) * 13;
     return `<div class="${classes}" data-cue-id="${attr(cue.uniqueID)}" data-cue-kind="${kind}" tabindex="0" style="--cue-color:${colorMap[String(cue.colorName).toLowerCase()] || colorMap.none}">
       <span class="cue-stripe"></span><span class="cue-num">${escapeHtml(cue.number || '—')}</span>
-      <span class="cue-info" style="padding-left:${indent}px"><strong class="cue-title">${escapeHtml(cue.listName || cue.name || 'Sin nombre')}</strong><span class="cue-sub">${escapeHtml(cue.type || 'Cue')}</span></span><span class="cue-state"></span>
+      <span class="cue-info" style="padding-left:${indent}px"><strong class="cue-title">${escapeHtml(cue.listName || cue.name || 'Untitled')}</strong><span class="cue-sub">${escapeHtml(cue.type || 'Cue')}</span></span><span class="cue-state"></span>
     </div>`;
   }).join('');
   container.querySelectorAll('.cue-row').forEach((row) => {
@@ -182,21 +182,21 @@ function renderStandby() {
   const cue = isCart ? focusedCue() : playheadCue();
   const index = cues.findIndex((item) => item.uniqueID === cue?.uniqueID);
   const next = index >= 0 ? cues[index + 1] : null;
-  $('.standby-top .eyebrow').textContent = isCart ? 'CUE CART / SELECCIÓN' : 'LISTO / PLAYHEAD';
+  $('.standby-top .eyebrow').textContent = isCart ? 'CUE CART / SELECTION' : 'READY / PLAYHEAD';
   $('#cue-number').textContent = cue?.number || '—';
-  $('#cue-name').textContent = cue?.listName || cue?.name || (connected() ? (isCart ? 'Cue Cart vacío' : 'Sin cue en playhead') : 'Esperando conexión');
-  $('#cue-meta').textContent = cue ? `${cue.armed === false ? 'DESARMADO · ' : ''}${currentList()?.listName || currentList()?.name || 'Cue list'}` : state.status.detail || 'Configura la dirección de tu Mac para comenzar.';
+  $('#cue-name').textContent = cue?.listName || cue?.name || (connected() ? (isCart ? 'Empty Cue Cart' : 'No cue in playhead') : 'Waiting for connection');
+  $('#cue-meta').textContent = cue ? `${cue.armed === false ? 'DISARMED · ' : ''}${currentList()?.listName || currentList()?.name || 'Cue List'}` : state.status.detail || 'Set your Mac address to begin.';
   $('#cue-type').textContent = cue?.type || '—';
-  $('#next-cue').textContent = next ? `${next.number || '—'}  ${next.listName || next.name}` : 'Fin de la lista';
-  $('#go-button').querySelector('span').textContent = isCart ? 'LANZAR' : 'GO';
-  $('#go-button').querySelector('small').textContent = isCart ? 'Ejecutar selección' : 'Ejecutar cue';
+  $('#next-cue').textContent = next ? `${next.number || '—'}  ${next.listName || next.name}` : 'End of list';
+  $('#go-button').querySelector('span').textContent = isCart ? 'LAUNCH' : 'GO';
+  $('#go-button').querySelector('small').textContent = isCart ? 'Run selection' : 'Run cue';
 }
 
 function renderRunning() {
   $('#active-count').textContent = state.running.length;
-  $('#running-summary').textContent = state.running.length ? `${state.running.length} activo${state.running.length === 1 ? '' : 's'}` : 'Ninguno';
-  $('#running-mini-list').innerHTML = state.running.length ? state.running.map((cue) => `<div class="running-chip"><strong>${escapeHtml(cue.number || '—')} · ${escapeHtml(cue.listName || cue.name || 'Sin nombre')}</strong><span>${escapeHtml(cue.type || 'Cue')}</span></div>`).join('') : '<div class="empty-state">No hay cues ejecutándose</div>';
-  $('#active-grid').innerHTML = state.running.length ? state.running.map((cue) => `<article class="active-card"><header><span>● EN EJECUCIÓN</span><span>${escapeHtml(cue.type || '')}</span></header><div><h3>${escapeHtml(cue.number || '—')} · ${escapeHtml(cue.listName || cue.name || 'Sin nombre')}</h3><p>${escapeHtml(cue.name || '')}</p></div><footer><button data-active-action="togglePauseCue" data-cue-id="${attr(cue.uniqueID)}">Pausa / seguir</button><button data-active-action="stopCue" data-cue-id="${attr(cue.uniqueID)}">Detener</button></footer></article>`).join('') : '<div class="empty-state">No hay cues activos en este momento.</div>';
+  $('#running-summary').textContent = state.running.length ? `${state.running.length} active` : 'None';
+  $('#running-mini-list').innerHTML = state.running.length ? state.running.map((cue) => `<div class="running-chip"><strong>${escapeHtml(cue.number || '—')} · ${escapeHtml(cue.listName || cue.name || 'Untitled')}</strong><span>${escapeHtml(cue.type || 'Cue')}</span></div>`).join('') : '<div class="empty-state">No cues are running</div>';
+  $('#active-grid').innerHTML = state.running.length ? state.running.map((cue) => `<article class="active-card"><header><span>● RUNNING</span><span>${escapeHtml(cue.type || '')}</span></header><div><h3>${escapeHtml(cue.number || '—')} · ${escapeHtml(cue.listName || cue.name || 'Untitled')}</h3><p>${escapeHtml(cue.name || '')}</p></div><footer><button data-active-action="togglePauseCue" data-cue-id="${attr(cue.uniqueID)}">Pause / resume</button><button data-active-action="stopCue" data-cue-id="${attr(cue.uniqueID)}">Stop</button></footer></article>`).join('') : '<div class="empty-state">There are no active cues.</div>';
   $$('[data-active-action]').forEach((button) => button.addEventListener('click', () => act(button.dataset.activeAction, button.dataset.cueId)));
 }
 
@@ -204,7 +204,7 @@ function renderWorkspacePicker() {
   const select = $('[name="workspaceId"]');
   if (!select) return;
   const selected = state.config.workspaceId || '';
-  select.innerHTML = '<option value="">Primero disponible</option>' + state.workspaces.map((workspace) => `<option value="${attr(workspace.uniqueID)}">${escapeHtml(workspace.displayName)}</option>`).join('');
+  select.innerHTML = '<option value="">First available</option>' + state.workspaces.map((workspace) => `<option value="${attr(workspace.uniqueID)}">${escapeHtml(workspace.displayName)}</option>`).join('');
   select.value = selected;
 }
 
@@ -245,11 +245,11 @@ function moveFocus(delta) {
 function toggleActivePanel() {
   const target = state.activeKind === 'list' ? 'cart' : 'list';
   if (currentList(target)) activateKind(target);
-  else toast(target === 'cart' ? 'No hay Cue Carts' : 'No hay Cue Lists');
+  else toast(target === 'cart' ? 'No Cue Carts found' : 'No Cue Lists found');
 }
 
 function focusPlayhead() {
-  if (!state.playheadId) return toast('No hay cue en el playhead');
+  if (!state.playheadId) return toast('There is no cue in the playhead');
   state.focusedIds.list = state.playheadId;
   activateKind('list');
   requestAnimationFrame(() => document.querySelector('.cue-row.playhead')?.scrollIntoView({ block: 'nearest' }));
@@ -258,12 +258,12 @@ function focusPlayhead() {
 
 async function act(action, explicitCueId, extraPayload = {}) {
   if (!connected()) {
-    toast('No hay conexión con QLab', 'error');
+    toast('QLab is not connected', 'error');
     openSettings();
     return;
   }
   if (state.showLocked && action === 'resetAll') {
-    toast('Desbloquea el modo Show para hacer Reset', 'error');
+    toast('Unlock Show mode before resetting', 'error');
     vibrate([40, 35, 40]);
     return;
   }
@@ -282,13 +282,13 @@ function adjustVolume(scope, delta) {
   if (!connected()) return act(delta > 0 ? 'activeVolumeUp' : 'activeVolumeDown', null, { amount: Math.abs(delta) });
   const cue = focusedCue();
   if (scope === 'cue' && !cue) {
-    toast('Selecciona un cue para ajustar su volumen', 'error');
+    toast('Select a cue before adjusting its volume', 'error');
     vibrate([35, 25, 35]);
     return;
   }
   const action = `${scope === 'cue' ? 'cue' : 'active'}Volume${delta > 0 ? 'Up' : 'Down'}`;
   act(action, scope === 'cue' ? cue.uniqueID : null, { amount: Math.abs(delta) });
-  toast(`${scope === 'cue' ? 'Cue enfocado' : 'Cues activos'}: ${delta > 0 ? '+' : ''}${delta} dB`);
+  toast(`${scope === 'cue' ? 'Focused cue' : 'Active cues'}: ${delta > 0 ? '+' : ''}${delta} dB`);
 }
 
 function switchView(view) {
@@ -305,7 +305,7 @@ function cycleView(delta) {
 
 function openSettings() {
   if (state.showLocked) {
-    toast('Modo Show bloqueado: desbloquéalo para abrir configuración');
+    toast('Show mode is locked; unlock it to open settings');
     return;
   }
   fillSettings();
@@ -359,14 +359,14 @@ window.addEventListener('gamepadconnected', (event) => {
   gamepadState.index = event.gamepad.index;
   gamepadState.previous = event.gamepad.buttons.map((button) => button.pressed);
   $('#gamepad-status').classList.add('online');
-  $('#gamepad-status').lastChild.textContent = ' Deck conectada';
-  toast(`Mando detectado: ${event.gamepad.id.includes('Steam') ? 'Steam Deck' : event.gamepad.id}`);
+  $('#gamepad-status').lastChild.textContent = ' Deck connected';
+  toast(`Gamepad detected: ${event.gamepad.id.includes('Steam') ? 'Steam Deck' : event.gamepad.id}`);
 });
 
 window.addEventListener('gamepaddisconnected', () => {
   gamepadState.index = -1;
   $('#gamepad-status').classList.remove('online');
-  $('#gamepad-status').lastChild.textContent = ' Sin mando';
+  $('#gamepad-status').lastChild.textContent = ' No gamepad';
 });
 
 function pollGamepad(now) {
@@ -417,7 +417,7 @@ function pollGamepad(now) {
       if (!gamepadState.panicStart) gamepadState.panicStart = now;
       const progress = Math.min(1, (now - gamepadState.panicStart) / 1200);
       setHoldProgress(progress);
-      if (progress >= 1 && !gamepadState.panicSent) { act('panic'); gamepadState.panicSent = true; toast('PANIC enviado a QLab', 'error'); }
+      if (progress >= 1 && !gamepadState.panicSent) { act('panic'); gamepadState.panicSent = true; toast('PANIC sent to QLab', 'error'); }
     } else {
       if (down(10)) gamepadState.l3Single = true;
       if (up(10) && gamepadState.l3Single && !gamepadState.panicStart) act('setPlayhead');
@@ -439,7 +439,7 @@ function bindHoldButton(element, action) {
   let timer;
   const begin = () => {
     element.classList.add('holding');
-    timer = setTimeout(() => { act(action); toast(`${action === 'panic' ? 'PANIC' : 'Reset'} enviado`, 'error'); element.classList.remove('holding'); }, 1200);
+    timer = setTimeout(() => { act(action); toast(`${action === 'panic' ? 'PANIC' : 'Reset'} sent`, 'error'); element.classList.remove('holding'); }, 1200);
   };
   const cancel = () => { clearTimeout(timer); element.classList.remove('holding'); };
   element.addEventListener('pointerdown', begin);
@@ -484,7 +484,7 @@ function bindUi() {
     state.showLocked = !state.showLocked;
     localStorage.setItem('qdeck-show-locked', state.showLocked ? '1' : '0');
     renderLock();
-    toast(state.showLocked ? 'Modo Show bloqueado' : 'Modo Show desbloqueado');
+    toast(state.showLocked ? 'Show mode locked' : 'Show mode unlocked');
     vibrate(state.showLocked ? [25, 35, 25] : 25);
   });
   $('#close-settings').addEventListener('click', () => $('#settings-dialog').close());
@@ -496,7 +496,7 @@ function bindUi() {
     event.preventDefault();
     state.config = await window.qdeck.saveConfig(formConfig());
     $('#settings-dialog').close();
-    toast(state.config.demoMode ? 'Modo demostración iniciado' : 'Conectando con QLab…');
+    toast(state.config.demoMode ? 'Demo mode started' : 'Connecting to QLab…');
   });
   $('#disconnect-button').addEventListener('click', async () => { await window.qdeck.disconnect(); $('#settings-dialog').close(); });
   bindHoldButton($('#panic-button'), 'panic');
@@ -550,17 +550,17 @@ function bindBackend() {
   window.qdeck.on('action', ({ action }) => {
     if (action === 'refresh') return;
     const indicator = $('#command-status');
-    indicator.textContent = 'ENVIANDO';
+    indicator.textContent = 'SENDING';
     indicator.className = 'command-status pending';
   });
   window.qdeck.on('commandAck', ({ action, status, latency }) => {
     const indicator = $('#command-status');
     const ok = status === 'ok';
-    indicator.textContent = ok ? `OK ${latency} ms` : 'SIN CONFIRMAR';
+    indicator.textContent = ok ? `OK ${latency} ms` : 'UNCONFIRMED';
     indicator.className = `command-status ${ok ? 'ok' : 'error'}`;
     if (!ok) {
       vibrate([55, 35, 55]);
-      toast(`QLab no confirmó ${action}`, 'error');
+      toast(`QLab did not confirm ${action}`, 'error');
     } else if (action === 'go' || action === 'startCue') {
       vibrate([38, 22, 62]);
       flash($('#go-button'));
@@ -569,7 +569,7 @@ function bindBackend() {
     else vibrate(30);
     clearTimeout(window.__qdeckAckTimer);
     window.__qdeckAckTimer = setTimeout(() => {
-      indicator.textContent = 'LISTO';
+      indicator.textContent = 'READY';
       indicator.className = 'command-status';
     }, 1600);
   });
@@ -579,6 +579,6 @@ function bindBackend() {
 bindUi();
 bindBackend();
 window.qdeck.getConfig().then((config) => { state.config = config; fillSettings(); if (!config.host && !config.demoMode) setTimeout(openSettings, 250); });
-setInterval(() => { $('#clock').textContent = new Date().toLocaleTimeString('es-GT', { hour12: false }); }, 500);
+setInterval(() => { $('#clock').textContent = new Date().toLocaleTimeString('en-GB', { hour12: false }); }, 500);
 requestAnimationFrame(pollGamepad);
 render();

@@ -15,7 +15,7 @@ function oscString(value) {
 }
 
 function encodeMessage(address, args = []) {
-  if (!address.startsWith('/')) throw new Error('La dirección OSC debe comenzar con /');
+  if (!address.startsWith('/')) throw new Error('OSC addresses must begin with /');
   const tags = [','];
   const chunks = [oscString(address)];
 

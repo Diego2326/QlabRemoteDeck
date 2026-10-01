@@ -1,5 +1,7 @@
 # QDeck Remote
 
+<img src="assets/icon.png" alt="QDeck Remote icon" width="128">
+
 Consola remota bidireccional para operar QLab 5 desde una Steam Deck. Usa OSC 1.1 sobre TCP, descubre los workspaces abiertos, muestra listas, playhead y cues activos, y aprovecha Steam Input sin instalar un puente en la Mac.
 
 ## Funciones

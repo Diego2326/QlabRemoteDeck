@@ -39,15 +39,15 @@ class QLabClient extends EventEmitter {
     this.disconnect(false);
     this.config = { ...this.config, ...config };
     if (this.config.demoMode) return this.startDemo();
-    if (!this.config.host) return this.setState('disconnected', 'Configura la IP de la Mac');
+    if (!this.config.host) return this.setState('disconnected', 'Set the Mac IP address');
 
     this.intentionalClose = false;
-    this.setState('connecting', `Conectando con ${this.config.host}:53000`);
+    this.setState('connecting', `Connecting to ${this.config.host}:53000`);
     // QLab siempre conserva el puerto 53000 para mensajes de aplicación. Desde
     // allí descubrimos el puerto real del workspace, aunque este sea personalizado.
     this.openSocket(53000, () => {
       this.reconnectAttempt = 0;
-      this.setState('discovering', 'Buscando workspaces de QLab');
+      this.setState('discovering', 'Discovering QLab workspaces');
       this.send('/workspaces');
     });
   }
@@ -71,7 +71,7 @@ class QLabClient extends EventEmitter {
       this.socket = null;
       this.clearRefresh();
       if (!this.intentionalClose) this.scheduleReconnect();
-      else this.setState('disconnected', 'Desconectado');
+      else this.setState('disconnected', 'Disconnected');
     });
   }
 
@@ -82,12 +82,12 @@ class QLabClient extends EventEmitter {
     if (this.socket) this.socket.destroy();
     this.socket = null;
     this.workspace = null;
-    if (intentional) this.setState('disconnected', 'Desconectado');
+    if (intentional) this.setState('disconnected', 'Disconnected');
   }
 
   scheduleReconnect() {
     const seconds = Math.min(12, 2 ** Math.min(this.reconnectAttempt++, 3));
-    this.setState('reconnecting', `Reconectando en ${seconds} s`);
+    this.setState('reconnecting', `Reconnecting in ${seconds} s`);
     clearTimeout(this.reconnectTimer);
     this.reconnectTimer = setTimeout(() => this.connect(), seconds * 1000);
   }
@@ -165,7 +165,7 @@ class QLabClient extends EventEmitter {
     try {
       for (const message of decodePacket(frame)) this.onMessage(message);
     } catch (error) {
-      this.emit('log', { level: 'error', text: `Respuesta OSC inválida: ${error.message}` });
+      this.emit('log', { level: 'error', text: `Invalid OSC reply: ${error.message}` });
     }
   }
 
@@ -210,17 +210,17 @@ class QLabClient extends EventEmitter {
       const chosen = workspaces.find((item) => item.uniqueID === this.config.workspaceId)
         || workspaces.find((item) => item.displayName === this.config.workspaceName)
         || workspaces[0];
-      if (!chosen) return this.setState('error', 'QLab no tiene ningún workspace abierto');
+      if (!chosen) return this.setState('error', 'QLab has no open workspace');
       this.workspace = chosen;
       const authorize = () => {
-        this.setState('authorizing', `Autorizando ${chosen.displayName}`);
+        this.setState('authorizing', `Authorizing ${chosen.displayName}`);
         const connectPath = `/workspace/${chosen.uniqueID}/connect`;
         if (this.config.passcode) this.send(connectPath, String(this.config.passcode));
         else this.send(connectPath);
       };
       const workspacePort = Number(chosen.port || this.config.port || 53000);
       if (workspacePort !== this.connectedPort) {
-        this.setState('connecting', `Abriendo workspace en puerto ${workspacePort}`);
+        this.setState('connecting', `Opening workspace on port ${workspacePort}`);
         this.openSocket(workspacePort, authorize);
       } else authorize();
       return;
@@ -233,19 +233,19 @@ class QLabClient extends EventEmitter {
         data === true || data == null || (typeof data === 'string' && (data === 'ok' || data.startsWith('ok:')))
       );
       if (accepted) this.onAuthorized();
-      else this.setState('denied', data === 'badpass' ? 'Código de acceso incorrecto' : 'QLab rechazó el acceso');
+      else this.setState('denied', data === 'badpass' ? 'Incorrect passcode' : 'QLab denied access');
       return;
     }
 
     if (status === 'denied') {
-      this.setState('denied', 'Permisos insuficientes en QLab');
+      this.setState('denied', 'Insufficient QLab permissions');
       return;
     }
     if (status === 'error') {
       // Los Cue Carts son listas válidas, pero no tienen playhead. Eso no debe
       // convertirse en un objeto de error usado como ID por la interfaz.
       if (address.endsWith('/playheadID')) this.emit('playhead', null);
-      else if (!acknowledgedAction) this.emit('log', { level: 'error', text: `QLab: error en ${address}` });
+      else if (!acknowledgedAction) this.emit('log', { level: 'error', text: `QLab error at ${address}` });
       return;
     }
     if (address.endsWith('/cueLists')) {
@@ -261,7 +261,7 @@ class QLabClient extends EventEmitter {
   }
 
   onAuthorized() {
-    this.setState('connected', `Conectado a ${this.workspace.displayName}`);
+    this.setState('connected', `Connected to ${this.workspace.displayName}`);
     this.send('/alwaysReply', 1);
     this.send('/updates', 1);
     this.send(this.scoped('/listen'));
@@ -292,9 +292,9 @@ class QLabClient extends EventEmitter {
 
   startDemo() {
     this.intentionalClose = false;
-    this.workspace = { uniqueID: 'DEMO', displayName: 'Evento de demostración' };
+    this.workspace = { uniqueID: 'DEMO', displayName: 'Demo event' };
     this.demo = createDemo();
-    this.setState('demo', 'Modo demostración — no envía comandos');
+    this.setState('demo', 'Demo mode — no commands are sent');
     queueMicrotask(() => {
       this.emit('cueLists', this.demo.lists);
       this.emit('currentCueList', this.demo.lists[0].uniqueID);
@@ -331,25 +331,25 @@ class QLabClient extends EventEmitter {
 }
 
 function friendlyError(error) {
-  if (error.code === 'ECONNREFUSED') return 'La Mac rechazó la conexión. Revisa QLab y el puerto.';
-  if (error.code === 'EHOSTUNREACH' || error.code === 'ENETUNREACH') return 'La Mac no es accesible en esta red.';
-  if (error.code === 'ETIMEDOUT') return 'La conexión agotó el tiempo de espera.';
+  if (error.code === 'ECONNREFUSED') return 'The Mac refused the connection. Check QLab and the port.';
+  if (error.code === 'EHOSTUNREACH' || error.code === 'ENETUNREACH') return 'The Mac is not reachable on this network.';
+  if (error.code === 'ETIMEDOUT') return 'The connection timed out.';
   return error.message;
 }
 
 function createDemo() {
   const cue = (id, number, name, type, colorName = 'none') => ({ uniqueID: id, number, name, listName: name, type, colorName, armed: true, flagged: false });
   const cues = [
-    cue('c1', '1', 'Preset de sala', 'Group', 'blue'),
-    cue('c2', '2', 'Bienvenida — música ambiente', 'Audio', 'green'),
-    cue('c3', '3', 'Entrada del presentador', 'Group', 'purple'),
-    cue('c4', '3.1', 'Video de apertura', 'Video', 'purple'),
-    cue('c5', '4', 'Presentación principal', 'Group', 'yellow'),
-    cue('c6', '5', 'Transición a preguntas', 'Fade', 'orange'),
-    cue('c7', '6', 'Cierre y créditos', 'Video', 'red'),
-    cue('c8', '7', 'Música de salida', 'Audio', 'green')
+    cue('c1', '1', 'Room preset', 'Group', 'blue'),
+    cue('c2', '2', 'Welcome — background music', 'Audio', 'green'),
+    cue('c3', '3', 'Presenter entrance', 'Group', 'purple'),
+    cue('c4', '3.1', 'Opening video', 'Video', 'purple'),
+    cue('c5', '4', 'Main presentation', 'Group', 'yellow'),
+    cue('c6', '5', 'Transition to Q&A', 'Fade', 'orange'),
+    cue('c7', '6', 'Closing and credits', 'Video', 'red'),
+    cue('c8', '7', 'Exit music', 'Audio', 'green')
   ];
-  return { lists: [{ ...cue('list1', 'MAIN', 'Show principal', 'Cue List'), cues }], playheadId: 'c3', running: [cues[1]] };
+  return { lists: [{ ...cue('list1', 'MAIN', 'Main show', 'Cue List'), cues }], playheadId: 'c3', running: [cues[1]] };
 }
 
 module.exports = { QLabClient, DEFAULT_CONFIG };
