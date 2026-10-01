@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:">
+  <title>QDeck Remote</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button id="brand" class="brand" aria-label="Pantalla de show">
+        <span class="brand-mark">Q</span>
+        <span><strong>QDeck</strong><small>REMOTE</small></span>
+      </button>
+      <nav class="tabs" aria-label="Vistas">
+        <button class="tab active" data-view="show">Show</button>
+        <button class="tab" data-view="active">Activos <span id="active-count" class="count">0</span></button>
+        <button class="tab" data-view="controls">Control</button>
+      </nav>
+      <div class="top-actions">
+        <div id="gamepad-status" class="gamepad-status"><span></span> Sin mando</div>
+        <button id="connection-button" class="connection offline"><i></i><span>Desconectado</span></button>
+        <button id="lock-button" class="icon-button lock-button" aria-label="Bloquear modo show" title="Bloquear modo show">🔓</button>
+        <button id="settings-button" class="icon-button" aria-label="Configuración">⚙</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="view-show" class="view active">
+        <aside class="browser-stack">
+          <section id="list-panel" class="cue-panel panel active-panel">
+            <div class="panel-heading">
+              <div class="browser-title">
+                <span class="eyebrow green">CUE LISTS <kbd>L1/R1</kbd></span>
+                <button id="list-picker-list" class="list-picker">Sin lista</button>
+              </div>
+              <div class="panel-nav"><button data-cycle-kind="list" data-cycle="-1">‹</button><button data-cycle-kind="list" data-cycle="1">›</button></div>
+            </div>
+            <div id="cue-list-lists" class="cue-list" tabindex="0" aria-label="Cue Lists"></div>
+          </section>
+          <section id="cart-panel" class="cue-panel panel">
+            <div class="panel-heading">
+              <div class="browser-title">
+                <span class="eyebrow blue">CUE CARTS <kbd>L2/R2</kbd></span>
+                <button id="list-picker-cart" class="list-picker">Sin Cue Cart</button>
+              </div>
+              <div class="panel-nav"><button data-cycle-kind="cart" data-cycle="-1">‹</button><button data-cycle-kind="cart" data-cycle="1">›</button></div>
+            </div>
+            <div id="cue-list-carts" class="cue-list" tabindex="0" aria-label="Cue Carts"></div>
+          </section>
+        </aside>
+
+        <section class="show-console">
+          <div class="standby panel">
+            <div class="standby-top">
+              <span class="eyebrow green">LISTO / PLAYHEAD</span>
+              <span id="cue-type" class="cue-type">—</span>
+            </div>
+            <div class="cue-hero">
+              <span id="cue-number" class="hero-number">—</span>
+              <div>
+                <h1 id="cue-name">Esperando conexión</h1>
+                <p id="cue-meta">Configura la dirección de tu Mac para comenzar.</p>
+              </div>
+            </div>
+            <div class="next-strip">
+              <span>SIGUIENTE</span>
+              <strong id="next-cue">—</strong>
+            </div>
+          </div>
+
+          <div class="transport-grid">
+            <button class="transport secondary" data-action="previous">
+              <kbd>↑</kbd><span>Anterior</span>
+            </button>
+            <button id="go-button" class="transport go" data-action="go">
+              <kbd>A</kbd><span>GO</span><small>Ejecutar cue</small>
+            </button>
+            <button class="transport secondary" data-action="next">
+              <kbd>↓</kbd><span>Siguiente</span>
+            </button>
+          </div>
+
+          <div class="quick-actions">
+            <button data-action="togglePauseCue"><kbd>X</kbd><span>Pausa / seguir</span></button>
+            <button data-action="stopCue"><kbd>B</kbd><span>Detener cue</span></button>
+            <button data-action="previewCue"><kbd>Y</kbd><span>Preview</span></button>
+            <button id="panic-button" class="danger-hold"><span class="hold-progress"></span><kbd>L3+R3</kbd><span>Mantén: PANIC</span></button>
+          </div>
+
+          <div id="running-mini" class="running-mini panel">
+            <div class="panel-heading compact"><span class="eyebrow">EN EJECUCIÓN</span><span id="running-summary">Ninguno</span></div>
+            <div id="running-mini-list" class="running-mini-list"></div>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-active" class="view single-view">
+        <div class="section-title"><div><span class="eyebrow">MONITOR</span><h2>Cues activos</h2></div><button data-action="stopAll" class="outline-danger">Detener todos</button></div>
+        <div id="active-grid" class="active-grid"></div>
+      </section>
+
+      <section id="view-controls" class="view single-view">
+        <div class="section-title"><div><span class="eyebrow">OPERACIÓN</span><h2>Control global</h2></div><span class="safe-label">Acciones críticas requieren mantener</span></div>
+        <div class="mixer-grid">
+          <section class="mixer-card panel active-mixer">
+            <div class="mixer-copy"><span class="eyebrow green">AUDIO EN EJECUCIÓN</span><h3>Volumen de cues activos</h3><p>Ajuste relativo: conserva el balance entre todos los cues que están sonando.</p></div>
+            <div class="level-buttons" aria-label="Volumen de cues activos">
+              <button data-volume-scope="active" data-volume-delta="-3">−3 <small>dB</small></button>
+              <button data-volume-scope="active" data-volume-delta="-1">−1 <small>dB</small></button>
+              <span class="level-readout"><strong id="audio-active-count">0</strong><small>ACTIVOS</small></span>
+              <button data-volume-scope="active" data-volume-delta="1">+1 <small>dB</small></button>
+              <button data-volume-scope="active" data-volume-delta="3">+3 <small>dB</small></button>
+            </div>
+            <div class="deck-shortcut"><kbd>View</kbd><span>+</span><kbd>↑ ↓</kbd><span>±1 dB activos</span></div>
+          </section>
+          <section class="mixer-card panel cue-mixer">
+            <div class="mixer-copy"><span class="eyebrow blue">CUE ENFOCADO</span><h3 id="mixer-cue-name">Sin cue seleccionado</h3><p>Ajusta únicamente el nivel principal del cue marcado en el panel activo.</p></div>
+            <div class="level-buttons compact" aria-label="Volumen del cue enfocado">
+              <button data-volume-scope="cue" data-volume-delta="-3">−3 <small>dB</small></button>
+              <button data-volume-scope="cue" data-volume-delta="-1">−1 <small>dB</small></button>
+              <button data-volume-scope="cue" data-volume-delta="1">+1 <small>dB</small></button>
+              <button data-volume-scope="cue" data-volume-delta="3">+3 <small>dB</small></button>
+            </div>
+          </section>
+        </div>
+        <div class="control-grid">
+          <button class="control-card" data-action="pauseAll"><span class="control-icon">Ⅱ</span><strong>Pausar todo</strong><small>View + X</small></button>
+          <button class="control-card" data-action="resumeAll"><span class="control-icon">▶</span><strong>Reanudar todo</strong><small>View + A</small></button>
+          <button class="control-card" data-action="stopAll"><span class="control-icon">■</span><strong>Detener todo</strong><small>View + B</small></button>
+          <button class="control-card" data-action="resetAll"><span class="control-icon">↺</span><strong>Reset workspace</strong><small>Mantener 1.2 s</small></button>
+          <button class="control-card" data-action="previousSequence"><span class="control-icon">◀|</span><strong>Secuencia anterior</strong><small>View + L1</small></button>
+          <button class="control-card" data-action="nextSequence"><span class="control-icon">|▶</span><strong>Siguiente secuencia</strong><small>View + R1</small></button>
+          <button class="control-card danger-card" id="panic-card"><span class="control-icon">!</span><strong>PANIC</strong><small>Mantener L3 + R3</small></button>
+        </div>
+        <div class="mapping panel">
+          <div class="panel-heading"><div><span class="eyebrow">STEAM DECK</span><h3>Mapa de controles</h3></div></div>
+          <div class="mapping-grid">
+            <span><kbd>A</kbd> GO</span><span><kbd>B</kbd> detener cue</span><span><kbd>X</kbd> pausa/seguir cue</span><span><kbd>Y</kbd> preview</span>
+            <span><kbd>↑ ↓</kbd> playhead</span><span><kbd>L1 R1</kbd> Cue Lists</span><span><kbd>L2 R2</kbd> Cue Carts</span><span><kbd>View + ↑ ↓</kbd> volumen activos</span>
+            <span><kbd>L stick</kbd> seleccionar cue</span><span><kbd>R stick ↕</kbd> panel activo</span><span><kbd>R stick ↔</kbd> cambiar vista</span><span><kbd>L3 + R3</kbd> PANIC protegido</span>
+            <span><kbd>L4/R4</kbd> cue anterior/siguiente</span><span><kbd>L5</kbd> alternar panel</span><span><kbd>R5</kbd> volver al playhead</span><span><kbd>Trackpad</kbd> scroll y toque</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span><kbd>A</kbd> GO</span><span><kbd>B</kbd> STOP</span><span><kbd>X</kbd> PAUSA</span><span><kbd>Y</kbd> PREVIEW</span>
+      <span class="footer-spacer"></span><span id="command-status" class="command-status">LISTO</span><span id="clock">--:--:--</span><span id="latency-label">QLab —</span>
+    </footer>
+  </div>
+
+  <dialog id="settings-dialog">
+    <form id="settings-form" method="dialog">
+      <div class="dialog-title"><div><span class="eyebrow">CONEXIÓN</span><h2>Configuración de QLab</h2></div><button type="button" id="close-settings" class="icon-button">×</button></div>
+      <label>Dirección IP de la Mac<input name="host" autocomplete="off" inputmode="decimal" placeholder="192.168.1.20"></label>
+      <div class="form-row">
+        <label>Puerto OSC<input name="port" type="number" min="1" max="65535" value="53000"></label>
+        <label>Passcode<input name="passcode" type="password" inputmode="numeric" maxlength="4" placeholder="4 dígitos"></label>
+      </div>
+      <label>Workspace preferido<select name="workspaceId"><option value="">Primero disponible</option></select></label>
+      <label class="check"><input name="autoConnect" type="checkbox" checked><span>Conectar automáticamente al abrir</span></label>
+      <label class="check demo-check"><input name="demoMode" type="checkbox"><span>Modo demostración (sin QLab)</span></label>
+      <div class="help-box"><strong>En la Mac</strong><span>QLab → Workspace Settings → Network → OSC Access. Activa View y Control para el passcode. La Deck y la Mac deben estar en la misma red.</span></div>
+      <div class="dialog-actions"><button type="button" id="disconnect-button" class="ghost">Desconectar</button><button type="submit" class="primary">Guardar y conectar</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "name": "qlab-remote-deck",
+  "version": "1.0.0",
+  "description": "Consola remota de QLab diseñada para Steam Deck",
+  "desktopName": "QDeck Remote",
+  "main": "src/main/main.js",
+  "author": "QDeck",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test",
+    "probe:qlab": "node scripts/qlab-probe.js",
+    "check:qlab-control": "node scripts/qlab-control-check.js",
+    "check": "node --check src/main/main.js && node --check src/main/qlab-client.js && node --check src/main/osc.js && node --check src/renderer/app.js",
+    "dist:mac": "electron-builder --mac dir",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^38.1.2",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.qdeck.remote",
+    "productName": "QDeck Remote",
+    "files": ["src/**/*", "assets/**/*", "package.json"],
+    "linux": {
+      "target": ["AppImage"],
+      "category": "AudioVideo",
+      "icon": "assets/icon.png",
+      "syncDesktopName": true,
+      "artifactName": "QDeck-Remote-${version}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": ["dir"],
+      "category": "public.app-category.utilities",
+      "icon": "assets/icon.png"
+    }
+  }
+}
