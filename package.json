@@ -1,7 +1,7 @@
 {
   "name": "qlab-remote-deck",
-  "version": "1.0.0",
-  "description": "Consola remota de QLab diseñada para Steam Deck",
+  "version": "1.0.1",
+  "description": "QLab remote control console designed for Steam Deck",
   "desktopName": "QDeck Remote",
   "main": "src/main/main.js",
   "author": "QDeck",
